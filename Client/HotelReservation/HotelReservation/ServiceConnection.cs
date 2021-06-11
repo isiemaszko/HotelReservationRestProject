@@ -2,9 +2,11 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace HotelReservation
 {
@@ -37,11 +39,14 @@ namespace HotelReservation
         public async Task<List<Room>> GetRooms(DateTime from, DateTime to)
         {
             List<Room> rooms = new List<Room>();
-            HttpResponseMessage response = await client.GetAsync("rooms");
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?dateFrom"] = from.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
+            query["?dateTo"] = to.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
+            HttpResponseMessage response = await client.GetAsync("rooms/" + query.ToString());
             if (response.IsSuccessStatusCode)
             {
-                var a = await response.Content.ReadAsStringAsync();
-                rooms = JsonConvert.DeserializeObject<List<Room>>(a);
+                string responseString = await response.Content.ReadAsStringAsync();
+                rooms = JsonConvert.DeserializeObject<List<Room>>(responseString);
             }
             return rooms;
         }

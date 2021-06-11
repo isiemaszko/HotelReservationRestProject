@@ -27,6 +27,7 @@ import model.Reservation;
 import model.Room;
 import model.TempMakeReservation;
 import resources.BadRequestException;
+import resources.InvalidCredentialsException;
 import resources.RoomReservationService;
 
 /**
@@ -45,11 +46,20 @@ public class HotelReservationServer {
 
     /**
      * Creates a new instance of HotelReservationServer
+     * @throws resources.InvalidCredentialsException
      */
+    
+    @GET
+    @Path("/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    public int login(@QueryParam("username") String username, @QueryParam("password") String password) throws InvalidCredentialsException {
+        return roomReservationService.login(username,password.toCharArray());
+    }
+    
     @GET
     @Path("/rooms")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Room> sayHello() {
+    public List<Room> getRooms() {
         return roomReservationService.getRooms();
     }
 
@@ -69,7 +79,7 @@ public class HotelReservationServer {
     }
 
     @GET
-    @Path("/reservations/{userID}")
+    @Path("/getReservations/{userID}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Reservation> getReservations(@PathParam("userID") int userId) {
         return roomReservationService.getReservations(userId);

@@ -30,6 +30,7 @@ import model.Reservation;
 import model.Reservations;
 import model.Room;
 import model.Rooms;
+import model.TempMakeReservation;
 import model.User;
 import model.Users;
 
@@ -53,26 +54,32 @@ public class RoomReservationService {
     public List<Reservation> getReservations(int userId) {
         return Reservations.getInstance().getReservationsForUserId(userId);
     }
+    
+     public Reservation getReservation(int numerOfReservation) {
+        return Reservations.getInstance().findByNumber(numerOfReservation);
+    }
 
-    public int makeReservation(List<String> roomNumbers, Date from, Date to, String notes, int userId) throws BadRequestException {
-        if (roomNumbers.isEmpty()) {
+    public int makeReservation(TempMakeReservation reservation)
+        //(List<Room> roomNumbers, Date from, Date to, String notes, int userId)
+                throws BadRequestException {
+        if (reservation.getRooms().isEmpty()) {
             throw new BadRequestException("At least one room required to make reservation");
         }
         List<Room> rooms;
         try {
-            rooms = roomNumbers.stream()
-                    .map(number -> Rooms.findByNumber(number))
+            rooms = reservation.getRooms().stream()
+                    .map(number -> Rooms.findByNumber(number.toString()))
                     .collect(Collectors.toList());
         } catch (NoSuchElementException ex) {
             throw new BadRequestException("No such room in database");
         }
-        if (from.after(to) || from.before(getToday())) {
+        if (reservation.getFrom().after(reservation.getTo()) || reservation.getFrom().before(getToday())) {
             throw new BadRequestException("Invalid dates");
         }
         try {
-            return Reservations.getInstance().create(rooms, from, to, notes, userId);
+            return Reservations.getInstance().create(rooms,reservation.getFrom(),reservation.getTo(),reservation.getNotes(),reservation.getOwnersId());
         } catch (RoomUnavailableException ex) {
-            throw new BadRequestException("At least one room is unavailable");
+            throw new BadRequestException("At least one room is unavailable ");
         }
     }
 
@@ -130,7 +137,7 @@ public class RoomReservationService {
         User user=Users.findUser(userId);
         
          Document document=new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\PS6\\images\\iTextHelloWorld.pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\ConfirmationReservation.pdf"));
             document.open();
             
         Paragraph title = new Paragraph();
@@ -162,8 +169,8 @@ public class RoomReservationService {
             
             document.close();
             
-            File file=new File("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\PS6\\images\\iTextHelloWorld.pdf");
-            byte[] b=Files.readAllBytes(Paths.get("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\PS6\\images\\iTextHelloWorld.pdf"));
+            File file=new File("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\ConfirmationReservation.pdf");
+            byte[] b=Files.readAllBytes(Paths.get("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\ConfirmationReservation.pdf"));
             return b;
        }
        catch(IOException e){
@@ -230,7 +237,7 @@ public class RoomReservationService {
             paragraph.add(new Paragraph(" "));
         }
     }
-    private Date getToday() {
+    public Date getToday() {
         Calendar c = Calendar.getInstance();
 
         c.set(Calendar.HOUR_OF_DAY, 0);

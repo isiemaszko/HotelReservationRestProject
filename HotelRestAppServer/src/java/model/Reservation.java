@@ -1,6 +1,5 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -12,7 +11,7 @@ public class Reservation {
     private int number;
     private Date from;
     private Date to;
-    private List<Room> rooms= new ArrayList<Room>();;
+    private List<Room> rooms;
     private int ownersId;
     private String notes;
     
@@ -76,7 +75,4 @@ public class Reservation {
     void setNotes(String notes) {
         this.notes = notes;
     }
-    
-  //  public void addRooms()
-    
 }

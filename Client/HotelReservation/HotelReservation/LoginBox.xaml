@@ -1,0 +1,65 @@
+﻿<Window x:Class="HotelReservation.LoginBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HotelReservation"
+        mc:Ignorable="d"
+        Title="Login to Hotel Reservation" Height="200" Width="400" ResizeMode="NoResize">
+    <DockPanel>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem HorizontalAlignment="Center" MinHeight="20">
+                <TextBlock x:Name="AsyncTaskMessage"/>
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Label HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="17" FontFamily="Corbel Light">Username:</Label>
+
+            <TextBox Grid.Column="1"
+                     Margin="20 0 20 3"
+                     VerticalAlignment="Bottom" 
+                     Width="auto" FontSize="18"
+                     FontFamily="Corbel Light"
+                     KeyDown="Input_KeyDown"
+                     x:Name="UsernameBox"/>
+
+            <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="17" FontFamily="Corbel Light">Password:</Label>
+            
+            <PasswordBox Grid.Column="1"
+                         Grid.Row="1"
+                         Margin="20 0 20 3"
+                         VerticalAlignment="Bottom"
+                         Width="auto" FontSize="18"
+                         FontFamily="Corbel Light"
+                         KeyDown="Input_KeyDown"
+                         x:Name="PasswordBox"/>
+
+            <Button Grid.Row="2"
+                    Grid.ColumnSpan="2"
+                    Padding="20 5 20 5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    x:Name="LoginButton"
+                    Click="LoginButton_Click">
+                Login
+            </Button>
+            
+        </Grid>
+        
+    </DockPanel>
+    
+</Window>

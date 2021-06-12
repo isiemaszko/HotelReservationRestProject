@@ -28,6 +28,7 @@ namespace HotelReservation
             client = new HttpClient();
             client.BaseAddress = new Uri(URL);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
         }
 
         public static ServiceConnection GetConnection()
@@ -97,12 +98,12 @@ namespace HotelReservation
         {
             MakeReservation reservation = new MakeReservation();
             reservation.rooms = roomNumbers.Select(int.Parse).ToList();
-            reservation.from = from.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
-            reservation.to = to.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
+            reservation.from = from.ToString("yyyy-MM-dd") + "T00:00:00+02:00";
+            reservation.to = to.ToString("yyyy-MM-dd") + "T00:00:00+02:00";
             reservation.notes = notes;
             reservation.ownersId = userId.Value;
 
-            HttpResponseMessage response = await client.PostAsync("makeReservation/", new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
+            HttpResponseMessage response = await client.PostAsync("makeReservation", new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
@@ -115,9 +116,7 @@ namespace HotelReservation
         public async Task<List<Reservation>> GetReservations()
         {
             List<Reservation> reservations = new List<Reservation>();
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["?userId"] = userId.Value.ToString();
-            HttpResponseMessage response = await client.GetAsync("reservations/" + query.ToString());
+            HttpResponseMessage response = await client.GetAsync("reservations/" + userId.Value.ToString());
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
@@ -130,7 +129,7 @@ namespace HotelReservation
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             query["?reservationNumber"] = reservationNumber.ToString();
-            query["?userId"] = userId.Value.ToString();
+            query["userId"] = userId.Value.ToString();
             HttpResponseMessage response = await client.DeleteAsync("cancelReservation/" + query.ToString());
             if (response.IsSuccessStatusCode)
             {
@@ -141,9 +140,7 @@ namespace HotelReservation
 
         public async Task<bool> ModifyReservation(Reservation reservation)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["?userId"] = userId.Value.ToString();
-            HttpResponseMessage response = await client.PutAsync("modifyReservation/" + query.ToString(), new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
+            HttpResponseMessage response = await client.PutAsync("modifyReservation/" + userId.Value.ToString(), new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
             if (response.IsSuccessStatusCode)
             {
                 return true;

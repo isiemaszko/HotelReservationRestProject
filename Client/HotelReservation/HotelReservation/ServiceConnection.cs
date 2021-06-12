@@ -43,10 +43,7 @@ namespace HotelReservation
         public async Task<List<Room>> GetRooms(DateTime from, DateTime to)
         {
             List<Room> rooms = new List<Room>();
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["?dateFrom"] = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            query["?dateTo"] = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            HttpResponseMessage response = await client.GetAsync("rooms/" + query.ToString());
+            HttpResponseMessage response = await client.GetAsync("rooms/" + from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + "/" + to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
@@ -61,12 +58,19 @@ namespace HotelReservation
         {
             Username = username;
             this.password = password.ToCharArray();
-            ushort?[] packed = new ushort?[this.password.Length];
-            for (int i = 0; i < packed.Length; i++)
+
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?username"] = username;
+            query["password"] = password;
+            HttpResponseMessage response = await client.GetAsync("login/" + query.ToString());
+            if (response.IsSuccessStatusCode)
             {
-                packed[i] = this.password[i];
+                string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(Username + ":" + password.ToString()));
+                client.DefaultRequestHeaders.Add("Authorization", "Basic " + svcCredentials);
+                userId = int.Parse(await response.Content.ReadAsStringAsync());
+                return true;
             }
-            userId = 1;
+            return false;
 
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
             //store.Open(OpenFlags.ReadOnly);
@@ -77,12 +81,6 @@ namespace HotelReservation
             //client.ClientCredentials.ClientCertificate.Certificate = cert[0];
 
             //store.Close();
-
-
-            //userId = response.@return;
-            string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(Username + ":" + password.ToString()));
-            client.DefaultRequestHeaders.Add("Authorization", "Basic " + svcCredentials);
-            return true;
         }
 
         public void Logout()
@@ -116,7 +114,7 @@ namespace HotelReservation
         public async Task<List<Reservation>> GetReservations()
         {
             List<Reservation> reservations = new List<Reservation>();
-            HttpResponseMessage response = await client.GetAsync("reservations/" + userId.Value.ToString());
+            HttpResponseMessage response = await client.GetAsync("getReservations/" + userId.Value.ToString());
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
@@ -133,8 +131,8 @@ namespace HotelReservation
             HttpResponseMessage response = await client.DeleteAsync("cancelReservation/" + query.ToString());
             if (response.IsSuccessStatusCode)
             {
-            return true;
-        }
+                return true;
+            }
             return false;
         }
 
@@ -149,21 +147,15 @@ namespace HotelReservation
         }
 
         //public async Task<byte[]> GetReservationConfirmation()
-            //{
-        //    requestReservationConfirmationResponse response = await client.requestReservationConfirmationAsync(1, (int)userId);
-
-        //    Byte[] bytes = response.@return;
-
-
-        //    SaveFileDialog saveFileDialog = new SaveFileDialog();
-        //    saveFileDialog.Filter = "Text file (*.pdf)|*.pdf";
-        //    saveFileDialog.FileName = "myReservation.pdf";
-        //    if (saveFileDialog.ShowDialog() == true)
-        //        File.WriteAllBytes(saveFileDialog.FileName, bytes);
-
-        //    return bytes;
-            //}
-            return true;
-        }
+        //{
+        //List<Reservation> reservations = new List<Reservation>();
+        //HttpResponseMessage response = await client.GetAsync("getReservations/" + userId.Value.ToString());
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        string responseString = await response.Content.ReadAsStringAsync();
+        //reservations = JsonConvert.DeserializeObject<List<Reservation>>(responseString);
+        //    }
+        //    return reservations;
+        //}
     }
 }

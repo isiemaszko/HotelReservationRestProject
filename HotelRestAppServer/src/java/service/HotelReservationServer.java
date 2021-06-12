@@ -51,25 +51,22 @@ public class HotelReservationServer {
     
     @GET
     @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
     public int login(@QueryParam("username") String username, @QueryParam("password") String password) throws InvalidCredentialsException {
         return roomReservationService.login(username,password.toCharArray());
     }
     
     @GET
-    @Path("/rooms")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Room> getRooms() {
-        return roomReservationService.getRooms();
-    }
-
-    @GET
     @Path("/rooms/{dateFrom}/{dateTo}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Room> getAvaliableRooms(@PathParam("dateFrom") Date from, @PathParam("dateTo") Date to) throws BadRequestException, ParseException {
+    public List<Room> getAvaliableRooms(@PathParam("dateFrom") String from, @PathParam("dateTo") String to) throws BadRequestException, ParseException {
         //format daty YYYY-MM-DD 
 
-        return roomReservationService.getAvailableRooms(from, to);
+        String[] datF = from.split("-", 3);
+        String[] datT = to.split("-", 3);
+        Date dateFrom = new GregorianCalendar(Integer.parseInt(datF[0]), Integer.parseInt(datF[1]) - 1, Integer.parseInt(datF[2])).getTime();
+        Date dateTo = new GregorianCalendar(Integer.parseInt(datT[0]), Integer.parseInt(datT[1]) - 1, Integer.parseInt(datT[2])).getTime();
+
+        return roomReservationService.getAvailableRooms(dateFrom, dateTo);
 
     }
 

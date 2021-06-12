@@ -572,19 +572,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\pawel\\.nuget\\packages\\": {}
+    "C:\\Users\\izabe\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\pawel\\Documents\\HotelReservationRestProject\\Client\\HotelReservation\\HotelReservation\\HotelReservation.csproj",
+      "projectUniqueName": "C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\HotelReservationRestProject\\Client\\HotelReservation\\HotelReservation\\HotelReservation.csproj",
       "projectName": "HotelReservation",
-      "projectPath": "C:\\Users\\pawel\\Documents\\HotelReservationRestProject\\Client\\HotelReservation\\HotelReservation\\HotelReservation.csproj",
-      "packagesPath": "C:\\Users\\pawel\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\pawel\\Documents\\HotelReservationRestProject\\Client\\HotelReservation\\HotelReservation\\obj\\",
+      "projectPath": "C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\HotelReservationRestProject\\Client\\HotelReservation\\HotelReservation\\HotelReservation.csproj",
+      "packagesPath": "C:\\Users\\izabe\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\HotelReservationRestProject\\Client\\HotelReservation\\HotelReservation\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\pawel\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\izabe\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -649,7 +649,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
       }
     }
   }

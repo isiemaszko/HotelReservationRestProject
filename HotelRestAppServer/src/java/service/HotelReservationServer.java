@@ -43,6 +43,8 @@ public class HotelReservationServer {
 
     @Context
     private UriInfo context;
+    
+    private String uri="http://localhost:8080/HotelRestAppServer/webresources/hotel/";
 
     /**
      * Creates a new instance of HotelReservationServer
@@ -79,10 +81,27 @@ public class HotelReservationServer {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/makeReservation")
-    public int makeReservation(TempMakeReservation reservation) throws BadRequestException {
-
-        return roomReservationService.makeReservation(reservation);
+    public Reservation makeReservation(TempMakeReservation reservation) throws BadRequestException {
+        
+        
+        Reservation makeRes=roomReservationService.makeReservation(reservation);
+        String uriCancel=uri+"cancelReservation?reservationNumber="+String.valueOf(makeRes.getNumber())+"&"+"userId="+String.valueOf(makeRes.getOwnersId());
+        makeRes.addLink(uriCancel,"cancelReservation");
+        
+        String confirmCancel=uri+"confirmation?reservationNumber="+String.valueOf(makeRes.getNumber())+"&"+"userId="+String.valueOf(makeRes.getOwnersId());
+        makeRes.addLink(confirmCancel,"confimationReservation");
+        
+        String uri=context.getBaseUriBuilder()
+                .path(HotelReservationServer.class)
+                .path("getReservations")
+                .path(String.valueOf(makeRes.getOwnersId()))
+                .build()
+                .toString();
+        makeRes.addLink(uri,"getReservations");
+        
+        return makeRes;
     }
 
     @DELETE

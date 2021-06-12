@@ -146,16 +146,17 @@ namespace HotelReservation
             return false;
         }
 
-        //public async Task<byte[]> GetReservationConfirmation()
-        //{
-        //List<Reservation> reservations = new List<Reservation>();
-        //HttpResponseMessage response = await client.GetAsync("getReservations/" + userId.Value.ToString());
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        string responseString = await response.Content.ReadAsStringAsync();
-        //reservations = JsonConvert.DeserializeObject<List<Reservation>>(responseString);
-        //    }
-        //    return reservations;
-        //}
+        public async Task<byte[]> GetReservationConfirmation(int reservationNumber)
+        {
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?reservationNumber"] = reservationNumber.ToString();
+            query["userId"] = userId.Value.ToString();
+            HttpResponseMessage response = await client.GetAsync("confirmation/" + query.ToString());
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsByteArrayAsync();
+            }
+            throw new Exception();
+        }
     }
 }

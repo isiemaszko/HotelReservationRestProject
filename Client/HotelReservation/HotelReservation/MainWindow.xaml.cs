@@ -1,6 +1,8 @@
 ﻿using HotelReservation.Models;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Windows;
@@ -133,6 +135,7 @@ namespace HotelReservation
                         ToDatePicker.SelectedDate.Value,
                         ReservationNotes.Text);
 
+                ReservationNotes.Text = "";
                 MessageBox.Show("Reservation made with number " + reservationNumber.ToString());
             }
             catch(Exception ex)
@@ -154,6 +157,7 @@ namespace HotelReservation
                 {
                     if (contentValid)
                     {
+                        ReservationSelection.SelectedIndex = -1;
                         LoadRooms();
                     }
                 }
@@ -180,10 +184,13 @@ namespace HotelReservation
             {
                 ModifyFromDatePicker.SelectedDate = null;
                 ModifyFromDatePicker.IsEnabled = false;
+                ModifyFromDatePicker.Background = Brushes.Transparent;
                 ModifyToDatePicker.SelectedDate = null;
                 ModifyToDatePicker.IsEnabled = false;
+                ModifyToDatePicker.Background = Brushes.Transparent;
                 ModifyReservationNotes.Text = "";
                 ModifyReservationNotes.IsEnabled = false;
+                ModifyReservationNotes.Background = Brushes.Transparent;
                 ConfirmationButton.IsEnabled = false;
                 CancelButton.IsEnabled = false;
                 ModifyButton.IsEnabled = false;
@@ -425,6 +432,24 @@ namespace HotelReservation
             LoadReservations();
             ReservationSelection.SelectedIndex = -1;
             AsyncTaskMessage.Text = "";
+        }
+
+        private async void ConfirmationButton_Click(object sender, RoutedEventArgs e)
+        {
+            Reservation reservation = ReservationSelection.SelectedItem as Reservation;
+            try
+            {
+                var bytes = await ServiceConnection.GetConnection().GetReservationConfirmation(reservation.number);
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Text file (*.pdf)|*.pdf";
+                saveFileDialog.FileName = "myReservation.pdf";
+                if (saveFileDialog.ShowDialog() == true)
+                    File.WriteAllBytes(saveFileDialog.FileName, bytes);
+            }
+            catch
+            {
+                MessageBox.Show("Error occurred");
+            }
         }
     }
 }

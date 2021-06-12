@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
+@XmlRootElement
 public class Room {
     private String roomNumber;
     private int floorNumber;
@@ -15,8 +15,6 @@ public class Room {
     private boolean isPresidentialSuite;
     private String windowDirection;
     private String description;
-
-    private String link;
 
    
      public Room(){}
@@ -51,7 +49,7 @@ public class Room {
         this.floorNumber = floorNumber;
     }
 
-    public boolean hasDoubleBed() {
+    public boolean isHasDoubleBed() {
         return hasDoubleBed;
     }
         
@@ -106,12 +104,4 @@ public class Room {
     void setDescription(String description) {
         this.description = description;
     }  
-    
-     public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
 }

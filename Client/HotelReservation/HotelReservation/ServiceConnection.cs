@@ -133,8 +133,8 @@ namespace HotelReservation
             HttpResponseMessage response = await client.DeleteAsync("cancelReservation/" + query.ToString());
             if (response.IsSuccessStatusCode)
             {
-                return true;
-            }
+            return true;
+        }
             return false;
         }
 
@@ -149,7 +149,7 @@ namespace HotelReservation
         }
 
         //public async Task<byte[]> GetReservationConfirmation()
-        //{
+            //{
         //    requestReservationConfirmationResponse response = await client.requestReservationConfirmationAsync(1, (int)userId);
 
         //    Byte[] bytes = response.@return;
@@ -162,6 +162,8 @@ namespace HotelReservation
         //        File.WriteAllBytes(saveFileDialog.FileName, bytes);
 
         //    return bytes;
-        //}
+            //}
+            return true;
+        }
     }
 }

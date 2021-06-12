@@ -40,6 +40,16 @@ import model.Users;
  */
 public class RoomReservationService {
      
+    public int login(String username, char[] password) throws InvalidCredentialsException {
+        try {
+            User user = Users.findUser(username);
+            if (user.isPasswordValid(password)) {
+                return user.getId();
+            }
+        }
+        catch(Exception ignore) { }
+        throw new InvalidCredentialsException();
+    }
     
     public List<Room> getRooms(){
         return Rooms.getRooms();

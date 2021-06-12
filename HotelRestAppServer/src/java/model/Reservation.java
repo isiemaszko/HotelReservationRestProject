@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,6 +15,7 @@ public class Reservation {
     private List<Room> rooms;
     private int ownersId;
     private String notes;
+    private List<Link> links = new ArrayList<Link>();
     
     public boolean containsPeriod(Date from, Date to) {
        return this.from.before(to) && this.to.after(from);
@@ -74,5 +76,28 @@ public class Reservation {
 
     void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+     public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> link) {
+        this.links = link;
+    }
+    
+     public void addLink(String uri, String rel) {
+        Link link=new Link();
+        link.setLink(uri);
+        link.setRel(rel);
+        boolean isThere=false;
+        for(Link l:links){
+            if((l.getRel()).equals(link.getRel())){
+                isThere=true;
+                System.out.print("znalezniono link");
+            }
+        }
+        if(!isThere) links.add(link);
+         
     }
 }

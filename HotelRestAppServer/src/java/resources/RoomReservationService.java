@@ -69,7 +69,7 @@ public class RoomReservationService {
         return Reservations.getInstance().findByNumber(numerOfReservation);
     }
 
-    public int makeReservation(TempMakeReservation reservation)
+    public Reservation makeReservation(TempMakeReservation reservation)
         //(List<Room> roomNumbers, Date from, Date to, String notes, int userId)
                 throws BadRequestException {
         if (reservation.getRooms().isEmpty()) {

@@ -1,10 +1,13 @@
 ﻿using HotelReservation.Models;
+using HotelReservation.Models.Requests;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -25,6 +28,7 @@ namespace HotelReservation
             client = new HttpClient();
             client.BaseAddress = new Uri(URL);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
         }
 
         public static ServiceConnection GetConnection()
@@ -39,10 +43,7 @@ namespace HotelReservation
         public async Task<List<Room>> GetRooms(DateTime from, DateTime to)
         {
             List<Room> rooms = new List<Room>();
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["?dateFrom"] = from.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
-            query["?dateTo"] = to.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
-            HttpResponseMessage response = await client.GetAsync("rooms/" + query.ToString());
+            HttpResponseMessage response = await client.GetAsync("rooms/" + from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + "/" + to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
@@ -57,11 +58,19 @@ namespace HotelReservation
         {
             Username = username;
             this.password = password.ToCharArray();
-            ushort?[] packed = new ushort?[this.password.Length];
-            for (int i = 0; i < packed.Length; i++)
+
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?username"] = username;
+            query["password"] = password;
+            HttpResponseMessage response = await client.GetAsync("login/" + query.ToString());
+            if (response.IsSuccessStatusCode)
             {
-                packed[i] = this.password[i];
+                string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(Username + ":" + password.ToString()));
+                client.DefaultRequestHeaders.Add("Authorization", "Basic " + svcCredentials);
+                userId = int.Parse(await response.Content.ReadAsStringAsync());
+                return true;
             }
+            return false;
 
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
             //store.Open(OpenFlags.ReadOnly);
@@ -72,10 +81,6 @@ namespace HotelReservation
             //client.ClientCredentials.ClientCertificate.Certificate = cert[0];
 
             //store.Close();
-
-
-            //userId = response.@return;
-            return true;
         }
 
         public void Logout()
@@ -89,44 +94,68 @@ namespace HotelReservation
 
         public async Task<int> MakeReservation(List<string> roomNumbers, DateTime from, DateTime to, string notes)
         {
-            //makeReservationResponse response = await client.makeReservationAsync(roomNumbers.ToArray(), from, to, notes, (int)userId);
+            MakeReservation reservation = new MakeReservation();
+            reservation.rooms = roomNumbers.Select(int.Parse).ToList();
+            reservation.from = from.ToString("yyyy-MM-dd") + "T00:00:00+02:00";
+            reservation.to = to.ToString("yyyy-MM-dd") + "T00:00:00+02:00";
+            reservation.notes = notes;
+            reservation.ownersId = userId.Value;
 
-            return 1;
+            HttpResponseMessage response = await client.PostAsync("makeReservation", new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                string responseString = await response.Content.ReadAsStringAsync();
+                int reservationId = int.Parse(responseString);
+                return reservationId;
+            }
+            throw new Exception();
         }
 
         public async Task<List<Reservation>> GetReservations()
         {
-            //getReservationsResponse response = await client.getReservationsAsync((int)userId);
-
-            return new List<Reservation>();
+            List<Reservation> reservations = new List<Reservation>();
+            HttpResponseMessage response = await client.GetAsync("getReservations/" + userId.Value.ToString());
+            if (response.IsSuccessStatusCode)
+            {
+                string responseString = await response.Content.ReadAsStringAsync();
+                reservations = JsonConvert.DeserializeObject<List<Reservation>>(responseString);
+            }
+            return reservations;
         }
 
         public async Task<bool> CancelReservation(int reservationNumber)
         {
-            //try
-            //{
-            //    cancelReservationResponse response = await client.cancelReservationAsync(reservationNumber, (int)userId);
-            //    return true;
-            //}
-            //catch (FaultException<BadRequestException>)
-            //{
-            //    return false;
-            //}
-            return true;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?reservationNumber"] = reservationNumber.ToString();
+            query["userId"] = userId.Value.ToString();
+            HttpResponseMessage response = await client.DeleteAsync("cancelReservation/" + query.ToString());
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> ModifyReservation(Reservation reservation)
         {
-            //try
-            //{
-            //    modifyReservationResponse response = await client.modifyReservationAsync(reservation, (int)userId);
-            //    return true;
-            //}
-            //catch (FaultException<BadRequestException>)
-            //{
-            //    return false;
-            //}
-            return true;
+            HttpResponseMessage response = await client.PutAsync("modifyReservation/" + userId.Value.ToString(), new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
         }
+
+        //public async Task<byte[]> GetReservationConfirmation()
+        //{
+        //List<Reservation> reservations = new List<Reservation>();
+        //HttpResponseMessage response = await client.GetAsync("getReservations/" + userId.Value.ToString());
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        string responseString = await response.Content.ReadAsStringAsync();
+        //reservations = JsonConvert.DeserializeObject<List<Reservation>>(responseString);
+        //    }
+        //    return reservations;
+        //}
     }
 }

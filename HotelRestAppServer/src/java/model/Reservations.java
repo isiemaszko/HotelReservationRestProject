@@ -34,7 +34,7 @@ public class Reservations {
         reservationList.remove(reservation);
     }
     
-    public synchronized int create(List<Room> rooms, Date from, Date to, String notes, int userId) throws RoomUnavailableException {
+    public synchronized Reservation create(List<Room> rooms, Date from, Date to, String notes, int userId) throws RoomUnavailableException {
         List<Room> availableRooms = Rooms.getAvailableRooms(from, to);
         int filteredCount = (int) rooms.stream()
                 .filter(room -> availableRooms.contains(room))
@@ -52,7 +52,7 @@ public class Reservations {
         
         reservationList.add(reservation);
         consecutiveNumbers++;
-        return reservation.getNumber();
+        return reservation;
     }
     
     public synchronized void modifyReservation(Reservation reservation) throws RoomUnavailableException {

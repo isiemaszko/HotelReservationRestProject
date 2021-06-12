@@ -43,6 +43,8 @@ public class HotelReservationServer {
 
     @Context
     private UriInfo context;
+    
+    private String uri="http://localhost:8080/HotelRestAppServer/webresources/hotel/";
 
     /**
      * Creates a new instance of HotelReservationServer
@@ -51,25 +53,22 @@ public class HotelReservationServer {
     
     @GET
     @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
     public int login(@QueryParam("username") String username, @QueryParam("password") String password) throws InvalidCredentialsException {
         return roomReservationService.login(username,password.toCharArray());
     }
     
     @GET
-    @Path("/rooms")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Room> getRooms() {
-        return roomReservationService.getRooms();
-    }
-
-    @GET
     @Path("/rooms/{dateFrom}/{dateTo}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Room> getAvaliableRooms(@PathParam("dateFrom") Date from, @PathParam("dateTo") Date to) throws BadRequestException, ParseException {
+    public List<Room> getAvaliableRooms(@PathParam("dateFrom") String from, @PathParam("dateTo") String to) throws BadRequestException, ParseException {
         //format daty YYYY-MM-DD 
 
-        return roomReservationService.getAvailableRooms(from, to);
+        String[] datF = from.split("-", 3);
+        String[] datT = to.split("-", 3);
+        Date dateFrom = new GregorianCalendar(Integer.parseInt(datF[0]), Integer.parseInt(datF[1]) - 1, Integer.parseInt(datF[2])).getTime();
+        Date dateTo = new GregorianCalendar(Integer.parseInt(datT[0]), Integer.parseInt(datT[1]) - 1, Integer.parseInt(datT[2])).getTime();
+
+        return roomReservationService.getAvailableRooms(dateFrom, dateTo);
 
     }
 
@@ -82,10 +81,27 @@ public class HotelReservationServer {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/makeReservation")
-    public int makeReservation(TempMakeReservation reservation) throws BadRequestException {
-
-        return roomReservationService.makeReservation(reservation);
+    public Reservation makeReservation(TempMakeReservation reservation) throws BadRequestException {
+        
+        
+        Reservation makeRes=roomReservationService.makeReservation(reservation);
+        String uriCancel=uri+"cancelReservation?reservationNumber="+String.valueOf(makeRes.getNumber())+"&"+"userId="+String.valueOf(makeRes.getOwnersId());
+        makeRes.addLink(uriCancel,"cancelReservation");
+        
+        String confirmCancel=uri+"confirmation?reservationNumber="+String.valueOf(makeRes.getNumber())+"&"+"userId="+String.valueOf(makeRes.getOwnersId());
+        makeRes.addLink(confirmCancel,"confimationReservation");
+        
+        String uri=context.getBaseUriBuilder()
+                .path(HotelReservationServer.class)
+                .path("getReservations")
+                .path(String.valueOf(makeRes.getOwnersId()))
+                .build()
+                .toString();
+        makeRes.addLink(uri,"getReservations");
+        
+        return makeRes;
     }
 
     @DELETE

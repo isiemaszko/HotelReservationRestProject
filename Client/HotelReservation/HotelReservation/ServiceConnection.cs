@@ -1,10 +1,13 @@
 ﻿using HotelReservation.Models;
+using HotelReservation.Models.Requests;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -40,8 +43,8 @@ namespace HotelReservation
         {
             List<Room> rooms = new List<Room>();
             var query = HttpUtility.ParseQueryString(string.Empty);
-            query["?dateFrom"] = from.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
-            query["?dateTo"] = to.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
+            query["?dateFrom"] = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            query["?dateTo"] = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             HttpResponseMessage response = await client.GetAsync("rooms/" + query.ToString());
             if (response.IsSuccessStatusCode)
             {
@@ -62,6 +65,7 @@ namespace HotelReservation
             {
                 packed[i] = this.password[i];
             }
+            userId = 1;
 
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
             //store.Open(OpenFlags.ReadOnly);
@@ -75,6 +79,8 @@ namespace HotelReservation
 
 
             //userId = response.@return;
+            string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(Username + ":" + password.ToString()));
+            client.DefaultRequestHeaders.Add("Authorization", "Basic " + svcCredentials);
             return true;
         }
 
@@ -89,44 +95,76 @@ namespace HotelReservation
 
         public async Task<int> MakeReservation(List<string> roomNumbers, DateTime from, DateTime to, string notes)
         {
-            //makeReservationResponse response = await client.makeReservationAsync(roomNumbers.ToArray(), from, to, notes, (int)userId);
+            MakeReservation reservation = new MakeReservation();
+            reservation.rooms = roomNumbers.Select(int.Parse).ToList();
+            reservation.from = from.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
+            reservation.to = to.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture);
+            reservation.notes = notes;
+            reservation.ownersId = userId.Value;
 
-            return 1;
+            HttpResponseMessage response = await client.PostAsync("makeReservation/", new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                string responseString = await response.Content.ReadAsStringAsync();
+                int reservationId = int.Parse(responseString);
+                return reservationId;
+            }
+            throw new Exception();
         }
 
         public async Task<List<Reservation>> GetReservations()
         {
-            //getReservationsResponse response = await client.getReservationsAsync((int)userId);
-
-            return new List<Reservation>();
+            List<Reservation> reservations = new List<Reservation>();
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?userId"] = userId.Value.ToString();
+            HttpResponseMessage response = await client.GetAsync("reservations/" + query.ToString());
+            if (response.IsSuccessStatusCode)
+            {
+                string responseString = await response.Content.ReadAsStringAsync();
+                reservations = JsonConvert.DeserializeObject<List<Reservation>>(responseString);
+            }
+            return reservations;
         }
 
         public async Task<bool> CancelReservation(int reservationNumber)
         {
-            //try
-            //{
-            //    cancelReservationResponse response = await client.cancelReservationAsync(reservationNumber, (int)userId);
-            //    return true;
-            //}
-            //catch (FaultException<BadRequestException>)
-            //{
-            //    return false;
-            //}
-            return true;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?reservationNumber"] = reservationNumber.ToString();
+            query["?userId"] = userId.Value.ToString();
+            HttpResponseMessage response = await client.DeleteAsync("cancelReservation/" + query.ToString());
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> ModifyReservation(Reservation reservation)
         {
-            //try
-            //{
-            //    modifyReservationResponse response = await client.modifyReservationAsync(reservation, (int)userId);
-            //    return true;
-            //}
-            //catch (FaultException<BadRequestException>)
-            //{
-            //    return false;
-            //}
-            return true;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["?userId"] = userId.Value.ToString();
+            HttpResponseMessage response = await client.PutAsync("modifyReservation/" + query.ToString(), new StringContent(JsonConvert.SerializeObject(reservation), Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
         }
+
+        //public async Task<byte[]> GetReservationConfirmation()
+        //{
+        //    requestReservationConfirmationResponse response = await client.requestReservationConfirmationAsync(1, (int)userId);
+
+        //    Byte[] bytes = response.@return;
+
+
+        //    SaveFileDialog saveFileDialog = new SaveFileDialog();
+        //    saveFileDialog.Filter = "Text file (*.pdf)|*.pdf";
+        //    saveFileDialog.FileName = "myReservation.pdf";
+        //    if (saveFileDialog.ShowDialog() == true)
+        //        File.WriteAllBytes(saveFileDialog.FileName, bytes);
+
+        //    return bytes;
+        //}
     }
 }

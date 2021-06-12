@@ -208,6 +208,7 @@ namespace HotelReservation
                 ConfirmationButton.IsEnabled = true;
                 CancelButton.IsEnabled = true;
                 CheckForChanges();
+                LoadModifiedRooms();
             }
         }
 

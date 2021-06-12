@@ -229,7 +229,7 @@ public class RoomReservationService {
             table.addCell(String.valueOf(room.getFloorNumber()));
             if(room.isHasBathroom()) {table.addCell("+");}
             else  {table.addCell("-");}
-            if(room.hasDoubleBed()) {table.addCell("+");}
+            if(room.isHasDoubleBed()) {table.addCell("+");}
             else  {table.addCell("-");}
             table.addCell(room.getWindowDirection());
             table.addCell(String.valueOf(room.getRoomSize()));

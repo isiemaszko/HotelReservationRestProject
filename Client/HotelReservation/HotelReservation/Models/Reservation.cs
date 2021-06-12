@@ -5,7 +5,7 @@ using System.Text;
 namespace HotelReservation.Models
 {
     public class Reservation
-    { 
+    {
         private int numberField;
 
         private DateTime fromField;
@@ -21,6 +21,10 @@ namespace HotelReservation.Models
         private int ownersIdField;
 
         private string notesField;
+
+        private List<Link> linksField;
+
+        public List<Link> links { get => linksField; set => linksField = value; }
 
         public int number
         {
@@ -116,6 +120,15 @@ namespace HotelReservation.Models
             {
                 this.notesField = value;
             }
+        }
+
+        public class Link
+        {
+            private string relField;
+            private string linkField;
+
+            public string rel { get => relField; set => relField = value; }
+            public string link { get => linkField; set => linkField = value; }
         }
     }
 }

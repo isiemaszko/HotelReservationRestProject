@@ -43,8 +43,8 @@ public class SecurityFilter implements ContainerRequestFilter{
        List<String> isRequest=requestContext.getHeaders().get("authorization");
        
         String path= requestContext.getUriInfo().getPath();
-        String[] methodsname= path.split("/",3);
-        if(!testedMethodNames.contains(methodsname[1])) {return; }
+        if (path.contains("login")) { return; }
+//        if(!testedMethodNames.contains(methodsname[1])) {return; }
         
        if(isRequest!=null && isRequest.size()>0){
            String authToken=isRequest.get(0);

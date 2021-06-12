@@ -105,8 +105,7 @@ namespace HotelReservation
             if (response.IsSuccessStatusCode)
             {
                 string responseString = await response.Content.ReadAsStringAsync();
-                int reservationId = int.Parse(responseString);
-                return reservationId;
+                return JsonConvert.DeserializeObject<Reservation>(responseString).number;
             }
             throw new Exception();
         }

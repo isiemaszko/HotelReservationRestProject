@@ -21,23 +21,27 @@ namespace HotelReservation
         private HttpClient client;
         private int? userId;
         public string Username { get; private set; }
+        private char[] password;
 
 
         private ServiceConnection()
         {
+            // SSL
             X509Store store = new X509Store(StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
-
             X509Certificate2Collection cert = store.Certificates.Find(X509FindType.FindByThumbprint, "34f7113d602342a9ef4ba0539d8fd3b148cdc34b", false);
-
-
             HttpClientHandler handler = new HttpClientHandler();
             handler.ClientCertificates.Add(cert[0]);
             client = new HttpClient(handler);
+
+            // NO SSL
+            //client = new HttpClient();
+
             client.BaseAddress = new Uri(URL);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
 
+            // SSL
             store.Close();
         }
 
@@ -61,8 +65,6 @@ namespace HotelReservation
             }
             return rooms;
         }
-
-        //    client.Dispose();
 
         public async Task<bool> Login(string username, string password)
         {

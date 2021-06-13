@@ -147,7 +147,7 @@ public class RoomReservationService {
         User user=Users.findUser(userId);
         
          Document document=new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\ConfirmationReservation.pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\pawel\\ConfirmationReservation.pdf"));
             document.open();
             
         Paragraph title = new Paragraph();
@@ -179,8 +179,8 @@ public class RoomReservationService {
             
             document.close();
             
-            File file=new File("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\ConfirmationReservation.pdf");
-            byte[] b=Files.readAllBytes(Paths.get("C:\\Users\\izabe\\OneDrive\\Pulpit\\RSI\\projektREST\\ConfirmationReservation.pdf"));
+            File file=new File("C:\\Users\\pawel\\ConfirmationReservation.pdf");
+            byte[] b=Files.readAllBytes(Paths.get("C:\\Users\\pawel\\ConfirmationReservation.pdf"));
             return b;
        }
        catch(IOException e){
@@ -228,8 +228,6 @@ public class RoomReservationService {
              table.addCell(room.getRoomNumber());
             table.addCell(String.valueOf(room.getFloorNumber()));
             if(room.isHasBathroom()) {table.addCell("+");}
-            else  {table.addCell("-");}
-            if(room.isHasDoubleBed()) {table.addCell("+");}
             else  {table.addCell("-");}
             table.addCell(room.getWindowDirection());
             table.addCell(String.valueOf(room.getRoomSize()));

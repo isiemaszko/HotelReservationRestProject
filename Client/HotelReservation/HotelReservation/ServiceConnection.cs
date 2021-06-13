@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -16,19 +17,28 @@ namespace HotelReservation
     class ServiceConnection
     {
         private static ServiceConnection instance;
-        private const string URL = "http://localhost:8080/HotelRestAppServer/webresources/hotel/";
+        private const string URL = "https://localhost:8181/HotelRestAppServer/webresources/hotel/";
         private HttpClient client;
         private int? userId;
         public string Username { get; private set; }
-        private char[] password;
 
 
         private ServiceConnection()
         {
-            client = new HttpClient();
+            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+
+            X509Certificate2Collection cert = store.Certificates.Find(X509FindType.FindByThumbprint, "34f7113d602342a9ef4ba0539d8fd3b148cdc34b", false);
+
+
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.ClientCertificates.Add(cert[0]);
+            client = new HttpClient(handler);
             client.BaseAddress = new Uri(URL);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+
+            store.Close();
         }
 
         public static ServiceConnection GetConnection()
@@ -71,16 +81,6 @@ namespace HotelReservation
                 return true;
             }
             return false;
-
-            //X509Store store = new X509Store(StoreLocation.CurrentUser);
-            //store.Open(OpenFlags.ReadOnly);
-
-            //X509Certificate2Collection cert = store.Certificates.Find(X509FindType.FindByThumbprint, "34f7113d602342a9ef4ba0539d8fd3b148cdc34b", false);
-
-            //client = new OnlineReceptionImplClient();
-            //client.ClientCredentials.ClientCertificate.Certificate = cert[0];
-
-            //store.Close();
         }
 
         public void Logout()
